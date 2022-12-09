@@ -30,7 +30,7 @@ class EventApiController extends Controller{
 
   public function listEvent() {
     $event = Event::paginate(6);
-    
+
     if(!empty($event)) {
         $this->response['status'] = "1";
         $this->response['data']['event'] = $event;
@@ -41,33 +41,45 @@ class EventApiController extends Controller{
       }
       $this->sendResponse($this->response);
   }
-  function showEvent($id)
-  {
+
+  function showEvent(string $id){
       //$event= Event::find($id);
       $event= Event::where('slug',$id)->first();
-      
+
       if(!empty($event)){
-      
+
           $this->response['status'] = "1";
           $this->response['data']['event'] = $event;
       } else {
         $this->response['status'] = "0";
         $this->response['data']['msg'] = "Sorry Invalid event..";
       }
-      
+
       return $this->sendResponse($this->response);
   }
-  function deleteEvent($id)
-  {
-    
+
+  function showEventById(int $id){
+
+    if(!$event= Event::find($id)) {
+      $this->response['status'] = "0";
+      $this->response['data']['msg'] = "Sorry Invalid event..";
+    } else {
+      $this->response['status'] = "1";
+      $this->response['data']['event'] = $event;
+    }
+    return $this->sendResponse($this->response);
+}
+
+  function deleteEvent($id){
+
       $Event= Event::find($id);
-    
-    
+
+
     if ($Event) {
       $Event->delete();
       $this->response['status'] = "1";
       $this->response['data']['msg'] = $id.' Event delete successfully. ';
-    
+
     }else {
     $this->response['status'] = "0";
     $this->response['data']['msg'] = 'Opss !.. somthing wrong. ';
@@ -92,13 +104,13 @@ class EventApiController extends Controller{
        $event = Event::find($id);
        if($request->status == 1) {
         $update_event = Event::where('id','!=',$id)->update(['status' => '0']);
-       
+
         }
        $event->update($data);
-      
+
        if(!empty($event)){
        //dd($user);
-         
+
          $this->response['status'] = "1";
          $this->response['data']['event'] = $event;
        }
@@ -106,20 +118,20 @@ class EventApiController extends Controller{
          $this->response['data']['error'] = $this->langError(['sorry there is no data to display.']);
        }
        $this->sendResponse($this->response);
- 
+
      }
      else{
        $this->response['data']['error'] = $this->langError($this->error);
      }
      $this->sendResponse($this->response);
-     
+
   }
   public function storeEvent(Request $request){
-    
+
     //dd($request->all());
-   
+
     //$QrCode = QrCode::generate('scan to me');
-    
+
     $data = [];
     $data = [
       'name' => $request->name,
@@ -129,14 +141,14 @@ class EventApiController extends Controller{
       'image_path' => $request->image_path,
       'status' => $request->status,
       //'qr_code' => $request->qr_code,
-      
+
     ];
-    
+
     //dd($data);
     // $validation['email'] = 'required|email|unique:users';
     // $validation['phone'] = 'required|unique:users';
     //$validation['user_id'] = 'required';
-    
+
     $validation = [];
     $attributes = [];
     $messages = [];
@@ -160,7 +172,7 @@ class EventApiController extends Controller{
       //dd($user);
         $event->special_link = $event->id."_".strtr($event->name,[' '=>'_']).'_'.md5(time());
         $event->save();
-        
+
         $this->response['status'] = "1";
         $this->response['data']['event'] = $event;
       }
@@ -172,8 +184,8 @@ class EventApiController extends Controller{
       $this->response['data']['error'] = $this->langError($this->error);
     }
     $this->sendResponse($this->response);
-    
-    
+
+
     // $request->title;
     // $this->sendResponse($post);
   }
